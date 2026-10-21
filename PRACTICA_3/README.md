@@ -49,6 +49,3 @@ Como en las prácticas previas, la entrega se realizará a través del campus vi
 
 <!---Momentos en trabajo de Nayar sobre Binary images https://cave.cs.columbia.edu/Statics/monographs/Binary%20Images%20FPCV-1-3.pdf -->
 
-
-***
-Bajo licencia de Creative Commons Reconocimiento - No Comercial 4.0 Internacional
