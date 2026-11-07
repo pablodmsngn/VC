@@ -3,6 +3,7 @@
 .vs/
 .vscode/
 
+
 # Python / Jupyter
 __pycache__/
 *.py[cod]
@@ -20,6 +21,7 @@ PRACTICA_4/dataset/test/
 PRACTICA_4/dataset/completo/
 PRACTICA_4/dataset/descartados/
 *.cache
+PRACTICA_4/docs/
 
 # Práctica 4: entrenamientos de YOLO
 # Se suben las gráficas y best.pt; last.pt y los pesos descargados automáticamente no
