@@ -1,0 +1,8 @@
+# Dataset de matrículas (generado por preparar_dataset.py)
+path: C:/Users/Usuario/Desktop/escitorio2/VC/VC/PRACTICA_4/dataset
+train: train/images
+val: val/images
+test: test/images
+
+nc: 1
+names: ['matricula']

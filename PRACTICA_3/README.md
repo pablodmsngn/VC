@@ -1,51 +1,199 @@
-C## Práctica 3. Detección y reconocimiento de formas
+## Práctica 3. Detección y reconocimiento de formas
 
-### Contenidos
+## Descripción
 
-[Aspectos cubiertos](#31-aspectos-cubiertos)  
-[Entrega](#32-entrega)
+El objetivo es extraer información geométrica y de apariencia de los objetos de una imagen para caracterizarlos y clasificarlos de forma automática. En ninguna de las tareas se usan modelos de aprendizaje profundo.
 
-### 3.1. Aspectos cubiertos
+La práctica se divide en dos tareas:
 
-En esta práctica el objetivo es adquirir nociones para extraer información geométrica de objetos presentes en una imagen, con el fin de caracterizarlos y posteriormente ser capaz de identificarlos de forma automática en categorías. Si bien se reitera en el apartado de la entgera, **no se plantea** para la resolución de las tareas, la utilización de **modelos de aprendizaje profundo**. El cuaderno de la práctica, *VC_P3.ipynb*, contiene diversos ejemplos mostrando variantes para la detección de objetos presentes en la imagen, como paso previo a su caracterización geométrica. En este sentido, se plantea el uso del umbralizado y la detección de contornos. Para el caso concreto de monedas, se considera también la utilización de la transformada de Hough para la localización de formas circulares.
+* **Tarea 1:** contar el dinero presente en una imagen de monedas y en un demostrador en vivo con la webcam.
+* **Tarea 2:** segmentar las partículas de una imagen y clasificarlas en fragmentos, *pellets* o alquitrán, evaluando el resultado con una matriz de confusión.
 
+| Tarea | Notebook |
+|-------|----------|
+| Tarea 1 | [`TAREAS/VC_P3_TAREA_1.ipynb`](TAREAS/VC_P3_TAREA_1.ipynb) |
+| Tarea 2 | [`TAREAS/VC_P3_TAREA_2.ipynb`](TAREAS/VC_P3_TAREA_2.ipynb) |
 
-Si bien no es necesario instalar paquetes adicionales para las primeras celdas del cuaderno, de cara a poder obtener la matriz de confusión, es requisito instalar en el *environment* los paquetes *scikit-learn* y *seaborn* para disponer de utilidades para el cálculo de [métricas](https://developers.google.com/machine-learning/crash-course/classification/accuracy-precision-recall?hl=es-419). Con *pip* sería algo como:
+El notebook [`VC_P3.ipynb`](VC_P3.ipynb) contiene los ejemplos de la práctica (umbralizado, contornos, transformada de Hough, características geométricas y métricas).
+
+---
+
+## Tarea 1 — Contar dinero en monedas
+
+### Escala píxeles → milímetros
+
+Solo con los píxeles no se puede saber qué moneda es cada una, porque su tamaño en la imagen depende de la distancia de la cámara. Por eso el usuario hace **clic sobre la moneda de 1 €**, cuyo diámetro real es 23.25 mm, y se obtiene la escala:
 
 ```
-pip install scikit-learn seaborn
+mm_por_px = 23.25 / diámetro_en_píxeles_de_la_moneda_de_1€
 ```
 
-### 3.2. Entrega
+Con esa escala se pasa el diámetro de cada moneda a milímetros y se asigna la moneda oficial de diámetro más cercano (1c = 16.25 mm, 2c = 18.75, 10c = 19.75, 5c = 21.25, 20c = 22.25, 1 € = 23.25, 50c = 24.25, 2 € = 25.75). Al final se suma el valor de todas.
 
-Para la entrega de esta práctica, son **dos las tareas planteadas**. Para ninguna de ellas deben integrar modelos de **aprendizaje profundo**:
+### Versión 1: transformada de Hough (no funciona bien)
 
-- En la **primera tarea**, el reto o tarea consiste en determinar la cantidad de dinero y monedas presentes en la imagen captada en vivo con la webcam. Una extensión válida sería la presencia de objetos que no sean monedas en la imagen analizada.
+Primero se localizaron las monedas con `cv2.HoughCircles`, tomando el radio de cada círculo como medida. El radio que devuelve Hough no es lo bastante preciso: las monedas de tamaño parecido (por ejemplo 20c y 50c, o 1c y 2c) se separan solo por 1 mm, y un error de pocos píxeles las confunde. El total obtenido fue **4.22 €** cuando el correcto es **3.88 €**.
 
-- En la **segunda tarea**, deben desarrollar un procedimiento que extraiga partículas de una imagen de test, y las clasifique en tres clases posibles. Deben tener claro que la imagen de test no puede utilizarse para ajustar el procedimiento, para ello cuentan con las imágenes de entrenamiento. En este sentido, además de la imagen de test *MPs_test.jpg* con su correspondiente archivo de anotaciones *MPs_test_bbs.csv*, se proporcionan de cara al entrenamiento, imágenes de tres clases de objetos recogidos en playas canarias: fragmentos plásticos, *pellets* y alquitrán. Para cada categoría se proporciona una imagen completa y una subimagen de la misma. Las dos primeras categorías se consideran microplásticos cuando miden menos de 5mm, mientras que la tercera es muy habitual encontrarlas en playas canarias. Observar que dado que cada imagen contiene muestras de una única categoría, a efectos prácticos disponen de un conjunto de datos anotado. La tarea propuesta consiste en hacer uso de las imágenes de entrenamiento proporcionadas, extraer de forma automatizada las partículas e identificar patrones en sus características geométricas y de apariencia o entrenar un clasificador con ellas, que puedan permitir la clasificación de las partículas en la imagen de test. El resultado obtenido en la imagen de test, debe mostrarse por medio las métricas mostradas en el cuaderno, incluyendo la matriz de confusión, donde se comparan las anotaciones con las predicciones.
+<img src="img/P3_T1_hough.png" height="350"> 
 
-![Confusión](MatrizConfu.png)  
-*Ejemplo de matriz de confusión*
+### Versión 2: medir con el contorno (funciona bien)
 
-A la hora de considerar posibles características geométricas, como punto de partida para la extracción de descriptores de las partículas, se proporciona enlace al trabajo [SMACC: A System for Microplastics Automatic Counting and Classification](https://doi.org/10.1109/ACCESS.2020.2970498) en el que se adoptan algunas propiedades geométricas para dicho fin. De forma resumida, las características geométricas utilizadas en dicho trabajo fueron:
+Se sustituye Hough por umbralizado y contornos:
 
-- Área en píxeles (A)
-- Perímetro en píxeles (P)
-- Compacidad (relación del cuadrado del perímetro con el área C=P^2/A)
-- Relación del área de la partícula con el área del contenedor que la contiene
-- Relación del ancho y el alto del contenedor
-- Relación entre los ejes de la elipse ajustada
-- Definido el centroide, relación entre las distancias menor y mayor al contorno
+1. Se pasa a grises, se suaviza con un filtro Gaussiano y se umbraliza con **Otsu** invertido (monedas en blanco, fondo en negro).
+2. Se buscan los **contornos externos** y se descartan los pequeños.
+3. El diámetro se calcula a partir del **área** del contorno, que es mucho más estable que el radio de Hough:
 
-En relación a la segmentación de las partículas, una probable primera observación es que la aplicación del umbralizado para separarlas del fondo, es delicada. Preprocesamiento como el ecualizado del histograma, suavizar la imagen de entrada o reducir su tamaño, o aplicar heurísticas basadas en el tamaño mínimo y máximo de los contornos localizados, y la distancia mínima entre ellos, pueden ayudar a filtrar falsas detecciones, pero a pesar de ello, será un desafío obtener una separación perfecta para todas las imágenes con la misma estrategia. Añadir, que la imagen de fragmentos contiene unas 80 partículas, la de *pellets* unas 55 y la de alquitrán unas 54.
+```
+área = π · (d/2)²   →   d = 2 · √(área / π)
+```
 
-<!--
-![Contornos](Output.jpg)  
-*Ejemplo ilustrativo contornos detectados en la imagen de fragmentos*
+Con este cambio se clasifican bien las 8 monedas y el total es **3.88 €**.
 
-Si quieren ir más allá, sugerir explorar técnicas de segmentación recientes y potentes como [Segment anything o SAM](https://segment-anything.com) o [OneFormer](https://github.com/SHI-Labs/OneFormer), y extensiones como , [SAM 2](https://github.com/facebookresearch/segment-anything-2), [FastSAM](https://github.com/CASIA-IVA-Lab/FastSAM) o [Count anything](https://github.com/ylqi/Count-Anything). No duden en compartir otras alternativas que descubran.-->
+<img src="img/P3_T1_binaria.png" height="350"> <img src="img/P3_T1_resultado.png" height="350">
 
-Como en las prácticas previas, la entrega se realizará a través del campus virtual, remitiendo un enlace al repositorio **github**, donde se alojará el **cuaderno o cuadernos** de resolución de las tareas, además de su correspondiente **README** describiendo el proceso adoptado para resolver cada tarea, la detallar la asistencia recibida por herramientas de IA, integrando de imágenes ilustrativas, además de las métricas obtenidas y matriz de confusión de la segunda tarea.
+### Demostrador en vivo con la webcam
 
-<!---Momentos en trabajo de Nayar sobre Binary images https://cave.cs.columbia.edu/Statics/monographs/Binary%20Images%20FPCV-1-3.pdf -->
+Se aplica el mismo método a cada fotograma de la cámara:
 
+* Se umbraliza con Otsu y se aplica un **cierre morfológico** para tapar los reflejos de las monedas.
+* Se hace clic en la moneda de 1 € para calibrar la escala. Con la tecla **R** se recalibra y con **ESC** se sale.
+* Para cada contorno se calcula la **circularidad** (4πA/P²). Si es menor que 0.80, no es redondo: será un objeto que no es moneda o monedas solapadas, y se marca con `?` en gris.
+* Si es redondo pero su diámetro se aleja más de 0.7 mm de todas las monedas oficiales, se marca como **"no moneda"** en rojo.
+* El resto se etiqueta en verde y su valor se suma al total que aparece en pantalla.
+
+Limitaciones del demostrador:
+
+* El fondo debe ser claro y uniforme para que Otsu separe bien las monedas. Con sombras o reflejos fuertes el contorno se deforma y cambia el diámetro medido.
+* Si se mueve la cámara (cambia la distancia), hay que recalibrar.
+* Las monedas solapadas se detectan como un solo objeto no redondo y no se cuentan.
+* Algunas monedas solo se diferencian en 0.5–1 mm, así que una pequeña inclinación de la cámara puede confundirlas.
+
+### Técnicas utilizadas
+
+* Transformada de Hough para círculos.
+* Umbralizado con Otsu.
+* Detección de contornos y momentos (centroide).
+* Diámetro equivalente a partir del área.
+* Calibración interactiva píxeles → mm con un clic.
+* Circularidad para descartar objetos que no son monedas.
+* Captura de vídeo con OpenCV.
+
+---
+
+## Tarea 2 — Clasificación de microplásticos
+
+Se dispone de tres imágenes de entrenamiento, cada una con partículas de una sola clase: **fragmentos (FRA)**, ***pellets* (PEL)** y **alquitrán (TAR)**. La imagen de test *MPs_test.jpg* tiene partículas mezcladas y sus anotaciones están en *MPs_test_bbs.csv*. La imagen de test solo se usa para evaluar.
+
+### Paso 1 — Cargar las imágenes
+
+Las imágenes de entrenamiento (4608×3456) se reducen a la cuarta parte. Como cada imagen tiene una sola clase, todas sus partículas reciben esa etiqueta.
+
+### Paso 2 — Segmentar las partículas
+
+El fondo no tiene la misma iluminación en toda la imagen (sombras en las fotos y bandas horizontales en el escáner de test), así que un umbral directo sobre los grises no funciona. En su lugar:
+
+1. Se pasa a grises y se normaliza el rango a 0–255 (`cv2.normalize`).
+2. Se estima el **fondo** con un `medianBlur` de tamaño 51: las partículas desaparecen y solo queda la iluminación.
+3. Se calcula la **diferencia** imagen − fondo con `cv2.absdiff`, así destacan tanto las partículas oscuras como las claras.
+4. Se umbraliza la diferencia (un píxel es partícula si se aleja más de 12 niveles del fondo).
+5. Una **apertura** elimina puntos sueltos y un **cierre** rellena huecos.
+6. Se buscan los **contornos externos** y se descartan los de área menor que 40 píxeles.
+
+Se detectan 69 fragmentos, 55 *pellets* y 53 alquitranes (el enunciado indica unos 80, 55 y 54).
+
+<img src="img/P3_T2_segmentacion.png" width="900">
+
+### Paso 3 — Extraer características
+
+Para cada partícula se calculan las características geométricas del trabajo **SMACC**. Solo se usan **relaciones**, sin área ni perímetro absolutos, porque la imagen de test tiene otra resolución:
+
+| Característica | Cálculo |
+|---|---|
+| Compacidad | P² / A |
+| Relación con el contenedor | área / área del rectángulo contenedor |
+| Relación ancho/alto | lado menor / lado mayor del contenedor |
+| Relación de ejes de la elipse | eje menor / eje mayor (`cv2.fitEllipse`) |
+| Relación de distancias | distancia mínima / máxima del centroide al contorno |
+| Solidez | área / área de la envolvente convexa |
+| Brillo | gris medio de la partícula / gris medio del fondo en esa zona |
+| Saturación | saturación media en HSV |
+
+### Paso 4 — Aprender los patrones
+
+El **patrón** de cada clase es la media de sus características en entrenamiento:
+
+| Clase | Compacidad | Rel. contenedor | Rel. ancho/alto | Rel. elipse | Rel. distancias | Solidez | Brillo | Saturación |
+|---|---|---|---|---|---|---|---|---|
+| FRA | 19.12 | 0.597 | 0.803 | 0.664 | 0.497 | 0.915 | 0.779 | 43.8 |
+| PEL | 18.64 | 0.684 | 0.814 | 0.776 | 0.662 | 0.960 | 0.691 | 59.4 |
+| TAR | 16.58 | 0.654 | 0.849 | 0.746 | 0.615 | 0.952 | 0.554 | 13.5 |
+
+* Los ***pellets*** son los más redondos (relaciones de elipse y de distancias más altas y mayor solidez).
+* Los **fragmentos** son los más irregulares.
+* El **alquitrán** es el más oscuro (brillo bajo) y casi no tiene color (saturación baja).
+
+Para clasificar una partícula nueva, se normalizan las características (restando la media y dividiendo por la desviación típica de entrenamiento, para que todas pesen igual) y se asigna la clase cuyo patrón está a **menor distancia euclídea**. Sobre las propias imágenes de entrenamiento este clasificador acierta el 78 % (F1 macro 0.78).
+
+### Paso 5 — Clasificar la imagen de test
+
+Se segmenta *MPs_test.jpg* con el mismo procedimiento (103 partículas detectadas) y se clasifica cada una.
+
+<img src="img/P3_T2_prediccion.png" height="600">
+
+*Rojo = fragmento, verde = pellet, azul = alquitrán.*
+
+### Paso 6 — Comparar con las anotaciones
+
+Para cada caja de *MPs_test_bbs.csv* se busca la partícula detectada cuyo centroide cae dentro de la caja. De las **120 anotaciones** se emparejan **97**; las 23 restantes no se detectaron (sobre todo partículas blancas casi invisibles sobre el fondo del escáner y partículas que se tocan y salen como un solo contorno).
+
+### Paso 7 — Métricas y matriz de confusión
+
+Resultados sobre las 97 partículas emparejadas:
+
+| Métrica | Valor |
+|---|---|
+| Accuracy | 0.742 |
+| Precision (ponderada) | 0.769 |
+| Recall (ponderado) | 0.742 |
+| **F1 score (ponderado)** | **0.724** |
+| F1 score (macro) | 0.686 |
+
+| Clase | Precision | Recall | F1 | Muestras |
+|---|---|---|---|---|
+| FRA | 0.712 | 0.945 | 0.812 | 55 |
+| PEL | 0.765 | 0.464 | 0.578 | 28 |
+| TAR | 1.000 | 0.500 | 0.667 | 14 |
+
+<img src="img/P3_T2_matriz_confusion.png" width="450">
+
+### Análisis de los resultados
+
+* Casi todos los **fragmentos** se clasifican bien (recall 0.95).
+* El error principal son los ***pellets* clasificados como fragmentos** (15 de 28).
+* La mitad del **alquitrán** también sale como fragmento. Sin embargo, cuando el clasificador dice alquitrán siempre acierta (precisión 1.0).
+* Gran parte del error viene de que las imágenes de entrenamiento (fotos con fondo gris) y la de test (escáner con fondo blanco) tienen **distinta iluminación y resolución**. En el escáner los *pellets* y el alquitrán se ven más claros que en las fotos y, por el brillo, se parecen más a los fragmentos. Además, las partículas del test son pequeñas (~25 px) y su contorno es menos regular, lo que reduce la diferencia de forma entre *pellets* y fragmentos.
+
+### Técnicas utilizadas
+
+* Estimación del fondo con filtro de mediana y resta (`absdiff`).
+* Umbralizado y morfología (apertura y cierre).
+* Detección de contornos.
+* Características geométricas de SMACC (compacidad, contenedor, elipse, distancias al centroide) y solidez.
+* Características de apariencia (brillo relativo al fondo y saturación HSV).
+* Clasificador por distancia al patrón medio de cada clase.
+* Métricas de `scikit-learn` (accuracy, precision, recall, F1) y matriz de confusión con `seaborn`.
+
+---
+
+## Uso de herramientas de IA
+
+* **Tarea 2:** se usó **Claude (Anthropic)**, a través de Claude Code, como apoyo para plantear la segmentación con estimación del fondo, la extracción de características, el clasificador por distancia al patrón medio, el emparejamiento con las anotaciones y el cálculo de métricas. El código se revisó, se simplificó y se comentó para entender cada paso.
+
+---
+
+## Conclusión
+
+En la primera tarea se comprobó que medir las monedas con el **contorno** es mucho más preciso que con la transformada de Hough, y que con una moneda de referencia se puede pasar de píxeles a milímetros y calcular el dinero, también en vídeo.
+
+En la segunda tarea se vio que, sin aprendizaje profundo, se pueden clasificar partículas con unas pocas características geométricas y de color, obteniendo un **F1 ponderado de 0.724**. La mayor dificultad no está en el clasificador, sino en la segmentación y en las diferencias de captura entre las imágenes de entrenamiento y la de test.

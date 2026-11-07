@@ -1,2 +1,28 @@
+# IDEs
 .idea/
 .vs/
+.vscode/
+
+# Python / Jupyter
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+*.tmp
+
+# Archivos comprimidos (copias locales de las prácticas)
+*.zip
+
+# Práctica 4: dataset de matrículas (~7 GB, se comparte por enlace)
+# Se suben solo el script, el data.yaml, el ground truth y los README
+PRACTICA_4/dataset/train/
+PRACTICA_4/dataset/val/
+PRACTICA_4/dataset/test/
+PRACTICA_4/dataset/completo/
+PRACTICA_4/dataset/descartados/
+*.cache
+
+# Práctica 4: entrenamientos de YOLO
+# Se suben las gráficas y best.pt; last.pt y los pesos descargados automáticamente no
+**/runs/**/weights/last.pt
+PRACTICA_4/TAREAS/weights/
+PRACTICA_4/TAREAS/*.pt
