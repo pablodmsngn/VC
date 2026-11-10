@@ -11,7 +11,7 @@ Cada práctica tiene su propia carpeta con un `README.md` que explica el trabajo
 | [Práctica 1](PRACTICA_1) | Primeros pasos con OpenCV: tablero de ajedrez, Mondrian, webcam y pop art | [`VC_P1.ipynb`](PRACTICA_1/VC_P1.ipynb) | [README](PRACTICA_1/README.md) |
 | [Práctica 2](PRACTICA_2) | Detección de bordes (Canny y Sobel) y demostrador de privacidad con sustracción de fondo | [`VC_P2_TAREAS.ipynb`](PRACTICA_2/VC_P2_TAREAS.ipynb) | [README](PRACTICA_2/README.md) |
 | [Práctica 3](PRACTICA_3) | Detección y reconocimiento de formas: conteo de monedas y clasificación de microplásticos | [`Tarea 1`](PRACTICA_3/TAREAS/VC_P3_TAREA_1.ipynb), [`Tarea 2`](PRACTICA_3/TAREAS/VC_P3_TAREA_2.ipynb) | [README](PRACTICA_3/README.md) |
-| [Práctica 4](PRACTICA_4) | Detección y seguimiento de vehículos y personas, detección de matrículas con YOLO y lectura con OCR | [`Tarea 1`](PRACTICA_4/TAREAS/VC_P4_TAREA_1.ipynb), [`Tarea 2`](PRACTICA_4/TAREAS/VC_P4_TAREA_2.ipynb) 
+| [Práctica 4](PRACTICA_4) | Detección y seguimiento de vehículos y personas, detección de matrículas con YOLO y lectura con OCR (EasyOCR vs SmolVLM) | [`Tarea 1`](PRACTICA_4/TAREAS/VC_P4_TAREA_1.ipynb), [`Tarea 2`](PRACTICA_4/TAREAS/VC_P4_TAREA_2.ipynb) | [README](PRACTICA_4/README.md) |
 
 ## Estructura
 
@@ -36,7 +36,8 @@ PRACTICA_4/
 ├── ejemplos/          Notebooks de ejemplo (YOLO, RT-DETR, OCR)
 ├── modelos/           Modelos preentrenados de YOLO
 ├── dataset/           Dataset de matrículas (en el repo solo el script, data.yaml y ground truth)
-└── docs/              Material de apoyo
+├── TAREAS/runs/       Entrenamiento del detector de matrículas (gráficas y best.pt)
+└── resultados/        CSV, gráficas y fotogramas de resultados (los vídeos no se suben por tamaño)
 ```
 
 ## Tecnologías
@@ -45,7 +46,7 @@ PRACTICA_4/
 - [OpenCV](https://opencv.org/), [NumPy](https://numpy.org/), [Matplotlib](https://matplotlib.org/) y [Pillow](https://python-pillow.org/)
 - [pandas](https://pandas.pydata.org/), [scikit-learn](https://scikit-learn.org/) y [seaborn](https://seaborn.pydata.org/) para métricas y matrices de confusión (Práctica 3)
 - [Ultralytics YOLO](https://docs.ultralytics.com/) para detección, seguimiento y entrenamiento (Práctica 4)
-- [EasyOCR](https://github.com/JaidedAI/EasyOCR), [Tesseract](https://github.com/tesseract-ocr/tesseract) y [Transformers](https://huggingface.co/docs/transformers) para OCR (Práctica 4)
+- [EasyOCR](https://github.com/JaidedAI/EasyOCR) y [SmolVLM](https://huggingface.co/HuggingFaceTB/SmolVLM-256M-Instruct) (con [Transformers](https://huggingface.co/docs/transformers)) para OCR (Práctica 4)
 - Jupyter Notebook
 
 ## Instalación
@@ -72,13 +73,16 @@ pip install opencv-python numpy matplotlib pillow jupyter pandas scikit-learn se
 
 ### Práctica 4
 
-Entorno `VC_P4` (Python 3.9.5, como indica el enunciado):
+Entorno `VC_P4` (el enunciado propone Python 3.9.5; los resultados se obtuvieron con Python 3.12):
 
 ```bash
-conda create --name VC_P4 python=3.9.5
+conda create --name VC_P4 python=3.12
 conda activate VC_P4
-pip install ultralytics lap easyocr pytesseract transformers
+pip install ultralytics lap transformers scipy scikit-image python-bidi PyYAML Shapely pyclipper ninja
+pip install --no-deps easyocr
 ```
+
+EasyOCR se instala sin dependencias para que no sustituya `opencv-python` por `opencv-python-headless`, que eliminaría `cv2.imshow`.
 
 Para entrenar con GPU hay que instalar PyTorch con CUDA siguiendo las [instrucciones oficiales](https://pytorch.org/get-started/locally/). Las imágenes del dataset de matrículas no se incluyen en el repositorio por su tamaño (~7 GB). Una vez descargadas en `PRACTICA_4/dataset/`, el script [`preparar_dataset.py`](PRACTICA_4/dataset/preparar_dataset.py) genera el reparto train/val/test, las etiquetas YOLO, el `data.yaml` y el ground truth.
 
