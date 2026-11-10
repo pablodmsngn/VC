@@ -11,7 +11,7 @@ Cada práctica tiene su propia carpeta con un `README.md` que explica el trabajo
 | [Práctica 1](PRACTICA_1) | Primeros pasos con OpenCV: tablero de ajedrez, Mondrian, webcam y pop art | [`VC_P1.ipynb`](PRACTICA_1/VC_P1.ipynb) | [README](PRACTICA_1/README.md) |
 | [Práctica 2](PRACTICA_2) | Detección de bordes (Canny y Sobel) y demostrador de privacidad con sustracción de fondo | [`VC_P2_TAREAS.ipynb`](PRACTICA_2/VC_P2_TAREAS.ipynb) | [README](PRACTICA_2/README.md) |
 | [Práctica 3](PRACTICA_3) | Detección y reconocimiento de formas: conteo de monedas y clasificación de microplásticos | [`Tarea 1`](PRACTICA_3/TAREAS/VC_P3_TAREA_1.ipynb), [`Tarea 2`](PRACTICA_3/TAREAS/VC_P3_TAREA_2.ipynb) | [README](PRACTICA_3/README.md) |
-| [Práctica 4](PRACTICA_4) | Detección y seguimiento de vehículos y personas, detección de matrículas con YOLO y lectura con OCR | [`Tarea 1`](PRACTICA_4/TAREAS/VC_P4_TAREA_1.ipynb), [`Tarea 2`](PRACTICA_4/TAREAS/VC_P4_TAREA_2.ipynb) | *En desarrollo* |
+| [Práctica 4](PRACTICA_4) | Detección y seguimiento de vehículos y personas, detección de matrículas con YOLO y lectura con OCR | [`Tarea 1`](PRACTICA_4/TAREAS/VC_P4_TAREA_1.ipynb), [`Tarea 2`](PRACTICA_4/TAREAS/VC_P4_TAREA_2.ipynb) 
 
 ## Estructura
 
