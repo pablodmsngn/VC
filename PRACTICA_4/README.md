@@ -94,7 +94,7 @@ El vídeo de test (`videos/C0142.MP4`, 1920×1080, 25 FPS, 2832 fotogramas) mues
 
 Para cada fotograma:
 
-1. **YOLO11n + BoT-SORT** (`model.track(..., persist=True)`) detecta y sigue personas, bicicletas, coches, motos, autobuses y camiones, asignando a cada objeto un identificador que se mantiene entre fotogramas.
+1. **YOLO11n + TrackTrack** (`model.track(..., persist=True)`, el tracker por defecto de Ultralytics 8.4) detecta y sigue personas, bicicletas, coches, motos, autobuses y camiones, asignando a cada objeto un identificador que se mantiene entre fotogramas.
 2. Para cada vehículo de más de 60 px de ancho se **recorta su caja** y se busca la matrícula con el detector entrenado. Todos los recortes del fotograma se pasan al detector de una vez (en lote).
 3. Las coordenadas de la matrícula se pasan del recorte al fotograma sumando la esquina del vehículo.
 4. Se dibuja todo con un panel de conteo, se escribe el fotograma en el vídeo de salida (reducido a 1280×720) y una fila por objeto en el CSV.
@@ -152,7 +152,7 @@ Con la posición del centro de cada objeto en el primer y el último fotograma e
 * Preparación del dataset: reparto agrupado para evitar fugas y conversión al formato YOLO.
 * *Transfer learning* de YOLO11n para una clase nueva.
 * Métricas de detección: precisión, recall, mAP50 y mAP50-95.
-* Seguimiento multiobjeto con BoT-SORT.
+* Seguimiento multiobjeto con TrackTrack (CVPR 2025): filtro de Kalman, asociación en dos etapas por confianza y HMIoU.
 * Detección en dos etapas: vehículo y matrícula dentro del vehículo.
 * Conteo por identificadores únicos con clase mayoritaria.
 * Escritura de vídeo con `cv2.VideoWriter` y de resultados en CSV.
@@ -283,6 +283,6 @@ Todos los tiempos se midieron en este equipo:
 ## Conclusiones
 
 * Con un dataset de unas 2400 imágenes y *transfer learning* sobre YOLO11n se obtiene un detector de matrículas **muy preciso (0.88) pero con recall limitado (0.60)**. Las curvas indican que más épocas o una resolución mayor lo mejorarían.
-* Combinar el seguimiento con BoT-SORT y la detección de la matrícula **dentro del recorte de cada vehículo** permite contar los objetos del vídeo y localizar la matrícula de 31 de los 42 vehículos.
+* Combinar el seguimiento con TrackTrack y la detección de la matrícula **dentro del recorte de cada vehículo** permite contar los objetos del vídeo y localizar la matrícula de 31 de los 42 vehículos.
 * En el OCR se cumple el compromiso esperado: el **VLM acierta más (62 % frente a 42 %) pero es unas 69 veces más lento** que el OCR clásico. Un postprocesado basado en el formato de la matrícula mejora a los dos modelos.
 * En el vídeo, el factor limitante no es el OCR sino la **calidad de la imagen**: el desenfoque por movimiento hace ilegibles la mayoría de las matrículas. Elegir las vistas más nítidas y exigir consenso entre lecturas evita mostrar matrículas inventadas, a costa de leer solo 6 de 29. Una cámara con menor tiempo de exposición mejoraría mucho este resultado.
