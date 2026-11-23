@@ -31,3 +31,6 @@ PRACTICA_4/TAREAS/*.pt
 PRACTICA_4/videos/*.MP4
 PRACTICA_4/videos/*.mp4
 PRACTICA_4/resultados/*.mp4
+
+# Práctica 5: datasets de caras (se descargan del campus virtual)
+PRACTICA_5/data/
