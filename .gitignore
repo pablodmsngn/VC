@@ -34,3 +34,15 @@ PRACTICA_4/resultados/*.mp4
 
 # Práctica 5: datasets de caras (se descargan del campus virtual)
 PRACTICA_5/data/
+# Práctica 5: imágenes de personajes con derechos (skins del prototipo). Se quedan solo en local
+PRACTICA_5/img/recursos/*.png
+
+# Práctica 5: vídeos grabados con los prototipos 
+PRACTICA_5/resultados/**/*.mp4
+PRACTICA_5/resultados/*.mp4
+PRACTICA_5/resultados/entrega.gif
+
+# Sistema operativo
+Thumbs.db
+desktop.ini
+.DS_Store
