@@ -13,9 +13,13 @@ El enunciado está en [`ENUNCIADO-P5.md`](ENUNCIADO-P5.md) y los cuadernos de ej
 
 ### Vídeo de la entrega
 
-<img src="resultados/entrega.gif" width="640">
+<img src="resultados/Pablo/entrega.gif" width="640">
 
-También en vídeo: [`resultados/entrega.mp4`](resultados/entrega.mp4).
+También en vídeo: [`resultados/Pablo/entrega.mp4`](resultados/Pablo/entrega.mp4).
+
+<img src="resultados/Roberto/entrega.gif" width="640">
+
+También en vídeo: [`resultados/Roberto/entrega.mp4`](resultados/Roberto/entrega.mp4).
 
 ---
 
