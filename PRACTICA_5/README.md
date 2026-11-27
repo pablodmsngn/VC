@@ -326,19 +326,6 @@ Los modelos entrenados están en [`modelos/`](modelos): `emociones_mobilenetv2.k
 
 ---
 
-## Uso de herramientas de IA
-
-Se usó **Claude (Anthropic)**, a través de Claude Code, como apoyo en:
-
-* La organización de la práctica y la resolución de los problemas del entorno (conflicto de versiones de OpenCV).
-* La elección y descarga del dataset FER-2013.
-* El código de la Tarea 1: carga y preprocesado con landmarks, modelo clásico, *transfer learning* con MobileNetV2, comparativas y prototipo.
-* La redacción de este README.
-
-El código se revisó, se ejecutó y se ajustó probando los prototipos con la webcam.
-
----
-
 ## Conclusiones
 
 * Para reconocer emociones, el ***transfer learning*** con MobileNetV2 supera al modelo clásico HOG + LBP + SVM (accuracy 0.53 frente a 0.47 en test) y es lo bastante rápido para tiempo real en CPU (8.5 ms por cara). El modelo clásico sigue siendo una alternativa válida si importan el tamaño (0.16 MB) o la velocidad.
